@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Doctrine\Bundle\DumpFixturesBundle;
+namespace TeamLab\Bundle\DumpFixturesBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
