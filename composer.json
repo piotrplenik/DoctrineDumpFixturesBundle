@@ -1,0 +1,27 @@
+{
+    "name": "jupeter/doctrine-dump-fixtures-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony DoctrineDumpFixturesBundle",
+    "keywords": ["Persistence", "Fixture"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Piotr Plenik",
+            "email": "piotr.plenik@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "doctrine/doctrine-fixtures-bundle": "*"
+    },
+    "autoload": {
+        "psr-0": { "Doctrine\\Bundle\\FixturesBundle": "" }
+    },
+    "target-dir": "Doctrine/Bundle/FixturesBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.2.x-dev"
+        }
+    }
+}
+
