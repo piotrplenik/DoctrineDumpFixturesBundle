@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace TeamLab\Bundle\DumpFixturesBundle\Mapping;
+namespace TeamLab\Bundle\FixturesBundle\Mapping;
 
 interface Annotation
 {

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace TeamLab\Bundle\DumpFixturesBundle\Reflection;
+namespace TeamLab\Bundle\FixturesBundle\Reflection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 

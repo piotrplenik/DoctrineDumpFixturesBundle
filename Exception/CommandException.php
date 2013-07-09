@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace TeamLab\Bundle\DumpFixturesBundle\Exception;
+namespace TeamLab\Bundle\FixturesBundle\Exception;
 
 /**
  * Command Exception .

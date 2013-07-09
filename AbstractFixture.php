@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace TeamLab\Bundle\DumpFixturesBundle;
+namespace TeamLab\Bundle\FixturesBundle;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
