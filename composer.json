@@ -15,7 +15,7 @@
         "doctrine/doctrine-fixtures-bundle": "*"
     },
     "autoload": {
-        "psr-0": { "Doctrine\\Bundle\\FixturesBundle": "" }
+        "psr-0": { "TeamLab\\Bundle\\FixturesBundle": "" }
     },
     "target-dir": "Doctrine/Bundle/FixturesBundle",
     "extra": {
