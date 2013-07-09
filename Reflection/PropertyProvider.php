@@ -51,7 +51,7 @@ class PropertyProvider
     {
         $annotationReader = new AnnotationReader();
         return $annotationReader->getPropertyAnnotation($this->reflection,
-            'Doctrine\Bundle\DoctrineFixturesBundle\Mapping\Column');
+            'TeamLab\Bundle\FixturesBundle\Mapping\Column');
     }
 
     /**

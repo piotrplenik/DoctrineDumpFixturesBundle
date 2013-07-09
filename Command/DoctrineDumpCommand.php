@@ -17,9 +17,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\ORM\EntityManager;
-use Doctrine\Bundle\FixturesBundle\Exception\CommandException;
-use Doctrine\Bundle\FixturesBundle\Reflection\EntityProvider;
 use Doctrine\Common\Annotations\AnnotationReader;
+use TeamLab\Bundle\FixturesBundle\Exception\CommandException;
+use TeamLab\Bundle\FixturesBundle\Reflection\EntityProvider;
 
 /**
  * Dump data fixtures from bundles.
@@ -56,20 +56,35 @@ class DoctrineDumpCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /**
-         * @var EntityManager $em
-         */
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
         $entities = $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames();
+
+        if ($input->isInteractive()) {
+            $dialog = $this->getHelperSet()->get('dialog');
+            if (!$dialog->askConfirmation($output, '<question>Careful, existing data fixtures will be override. Do you want to continue Y/N ?</question>', false)) {
+                return;
+            }
+        }
 
         foreach($entities as $entityName) {
             $provider = new EntityProvider($entityName);
             if(!$provider->valid()) continue;
 
+
             $fields = $provider->getDumpFields();
+
+            if (count($fields) == 0) {
+                $output->writeln(sprintf('<error>No fields for entity:</error> "<info>%s</info>".', $entityName));
+                continue;
+            }
+
+            $output->writeln(sprintf('Generating dump file for entity "<info>%s</info>", fields: <info>%s</info>',
+                $entityName, implode(', ', array_keys($fields))));
 
             try {
                 $this->generateFixtures($provider, $entityName, $fields);
+
             } catch (CommandException $e) {
                 $output->writeln($e->getMessage());
                 exit(1);
@@ -127,6 +142,8 @@ class DoctrineDumpCommand extends ContainerAwareCommand
                     } else {
                         throw new \Exception('aaa');
                     }
+                } else {
+                    $value = $fieldValue;
                 }
 
                 $element[$fieldName] = $value;
@@ -156,13 +173,13 @@ class DoctrineDumpCommand extends ContainerAwareCommand
             }
 
             if(array_key_exists('targetEntity', $attributes)) {
-//                $targetClass = $em->getClassMetadata($attributes['targetEntity']);
+                $targetClass = $em->getClassMetadata($attributes['targetEntity']);
 
-                var_dump($association);die();
-//                $className = get_class($data);
-//
+//                var_dump($association);die();
+                $className = get_class($data);
+
 //                die($className);
-//                $entityProvider = new EntityProvider($className);
+                $entityProvider = new EntityProvider($className);
 //
 //                $meta = $em->getClassMetadata($className);
                 $identifier = $targetClass->getSingleIdentifierFieldName();
@@ -202,10 +219,10 @@ class DoctrineDumpCommand extends ContainerAwareCommand
 
         $content = '<?php ' . "\n\n";
         $content .= 'namespace ' . $bundleNamespace . '\DataFixtures\ORM;' . "\n\n";
-        $content .= 'use Doctrine\Bundle\DoctrineFixturesBundle\LoadDataAbstractFixture;' . "\n";
+        $content .= 'use TeamLab\Bundle\FixturesBundle\AbstractFixture;' . "\n";
         $content .= 'use Doctrine\Common\Persistence\ObjectManager;' . "\n\n\n";
 
-        $content .= 'class Load' . ucfirst($provider->getName()) . 'Data extends LoadDataAbstractFixture
+        $content .= 'class Load' . ucfirst($provider->getName()) . 'Data extends AbstractFixture
 {
     /**
      * {@inheritDoc}
@@ -234,7 +251,7 @@ class DoctrineDumpCommand extends ContainerAwareCommand
             str_replace('\\', DIRECTORY_SEPARATOR, $bundleNamespace) . DIRECTORY_SEPARATOR .
             'DataFixtures' . DIRECTORY_SEPARATOR . 'ORM';
 
-        if(is_dir($fixturesDir)) {
+        if (!is_dir($fixturesDir)) {
             @mkdir($fixturesDir, 0777, true);
         }
 

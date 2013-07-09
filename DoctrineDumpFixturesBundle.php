@@ -18,6 +18,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  *
  * @author Piotr Plenik <piotr.plenik@gmail.com>
  */
-class DoctrineFixturesBundle extends Bundle
+class DoctrineDumpFixturesBundle extends Bundle
 {
 }

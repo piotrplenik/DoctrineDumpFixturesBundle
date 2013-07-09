@@ -12,11 +12,15 @@
 namespace TeamLab\Bundle\FixturesBundle\Reflection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use TeamLab\Bundle\FixturesBundle\Mapping\Entity;
 
 class EntityProvider
 {
     protected $className;
-    /** @var \ReflectionClass */
+
+    /**
+     * @var \ReflectionClass
+     */
     protected $reflection;
 
     public function __construct($className)
@@ -44,7 +48,7 @@ class EntityProvider
             return $this->getClassORMAnnotation()->name;
         }
 
-        throw new \Exception('Missing annotation for class: ' . $this->reflection->getName());
+        return $this->getClassName();
     }
 
     public function getClassName()
@@ -84,13 +88,13 @@ class EntityProvider
     }
 
     /**
-     * @return Doctrine\Bundle\DoctrineFixturesBundle\Mapping\Entity
+     * @return Entity
      */
     protected function getClassDumpAnnotation()
     {
         $annotationReader = new AnnotationReader();
         return $annotationReader->getClassAnnotation($this->reflection,
-            'Doctrine\Bundle\DoctrineFixturesBundle\Mapping\Entity');
+            'TeamLab\Bundle\FixturesBundle\Mapping\Entity');
     }
 
     /**
