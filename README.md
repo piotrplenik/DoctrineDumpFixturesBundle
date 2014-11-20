@@ -14,43 +14,43 @@ Setup and Configuration
  Follow these steps to install the bundle and the library in the Symfony
  Standard edition. Add the following to your ``composer.json`` file:
 
- .. code-block:: json
-
-     {
-         "require": {
-             "jupeter/doctrine-dump-fixtures-bundle": "dev-master"
-         }
+```json
+ {
+     "require": {
+         "jupeter/doctrine-dump-fixtures-bundle": "dev-master"
      }
+ }
+```
 
  Update the vendor libraries:
 
- .. code-block:: bash
-
-     $ php composer.phar update
+```bash
+$ php composer.phar update
+```
 
  If everything worked, the ``DoctrineDumpFixturesBundle`` can now be found
  at ``vendor/jupeter/doctrine-dump-fixtures-bundle``.
 
- .. note::
-
-     ``DoctrineDumpFixturesBundle`` installs
-     `Doctrine Fixtures Bundle` and `Doctrine Data Fixtures`_ library. The library can be found
-     at ``vendor/doctrine``.
+```
+``DoctrineDumpFixturesBundle`` installs
+`Doctrine Fixtures Bundle` and `Doctrine Data Fixtures`_ library. The library can be found
+at ``vendor/doctrine``.
+```
 
  Finally, register the Bundle ``DoctrineDumpFixturesBundle`` in ``app/AppKernel.php``.
 
- .. code-block:: php
-
-     // ...
-     public function registerBundles()
-     {
-         $bundles = array(
-             // ...
-             new TeamLab\Bundle\FixturesBundle\DoctrineDumpFixturesBundle(),
-             // ...
-         );
-         // ...
-     }
+```php
+// ...
+public function registerBundles()
+{
+    $bundles = array(
+        // ...
+        new TeamLab\Bundle\FixturesBundle\DoctrineDumpFixturesBundle(),
+        // ...
+    );
+    // ...
+}
+```
 
 Dump existing data into fixtures
 --------------------------------
