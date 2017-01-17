@@ -61,8 +61,12 @@ class DoctrineDumpCommand extends ContainerAwareCommand
         $entities = $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames();
 
         if ($input->isInteractive()) {
-            $dialog = $this->getHelperSet()->get('dialog');
-            if (!$dialog->askConfirmation($output, '<question>Careful, existing data fixtures will be override. Do you want to continue Y/N ?</question>', false)) {
+            $dialog = $this->getHelper('question')->ask(
+                $input,
+                $output,
+                new ConfirmationQuestion('<question>Careful, existing data fixtures will be override. Do you want to continue (y/N) ?</question>', false)
+            );
+            if($dialog === false) {
                 return;
             }
         }
