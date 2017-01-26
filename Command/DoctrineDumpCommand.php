@@ -12,12 +12,10 @@
 namespace TeamLab\Bundle\FixturesBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Annotations\AnnotationReader;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use TeamLab\Bundle\FixturesBundle\Exception\CommandException;
 use TeamLab\Bundle\FixturesBundle\Reflection\EntityProvider;
 
@@ -28,7 +26,7 @@ use TeamLab\Bundle\FixturesBundle\Reflection\EntityProvider;
  */
 class DoctrineDumpCommand extends ContainerAwareCommand
 {
-    static $indent = '          ';
+    public static $indent = '          ';
 
     protected function configure()
     {
@@ -42,13 +40,12 @@ class DoctrineDumpCommand extends ContainerAwareCommand
     {
         $bundles = $this->getContainer()->getParameter('kernel.bundles');
 
-        foreach($bundles as $bundle)
-        {
+        foreach ($bundles as $bundle) {
             preg_match('/(.*)\\\\\w+/', $bundle, $bundleNameSpace);
             $bundleNameSpace = $bundleNameSpace[1];
 
-            $pattern = '/' . str_replace('\\', "\\\\", $bundleNameSpace) . '/';
-            if(preg_match($pattern, $className)) {
+            $pattern = '/'.str_replace('\\', '\\\\', $bundleNameSpace).'/';
+            if (preg_match($pattern, $className)) {
                 return $bundleNameSpace;
             }
         }
@@ -61,20 +58,23 @@ class DoctrineDumpCommand extends ContainerAwareCommand
         $entities = $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames();
 
         if ($input->isInteractive()) {
-            $dialog = $this->getHelper('question')->ask(
-                $input,
-                $output,
-                new ConfirmationQuestion('<question>Careful, existing data fixtures will be override. Do you want to continue (y/N) ?</question>', false)
+            $helper = $this->getHelper('question');
+
+            $question = new ConfirmationQuestion(
+                'Careful, existing data fixtures will be override. Do you want to continue (y/N) ?',
+                false
             );
-            if($dialog === false) {
+
+            if (!$helper->ask($input, $output, $question)) {
                 return;
             }
         }
 
-        foreach($entities as $entityName) {
+        foreach ($entities as $entityName) {
             $provider = new EntityProvider($entityName);
-            if(!$provider->valid()) continue;
-
+            if (!$provider->valid()) {
+                continue;
+            }
 
             $fields = $provider->getDumpFields();
 
@@ -88,7 +88,6 @@ class DoctrineDumpCommand extends ContainerAwareCommand
 
             try {
                 $this->generateFixtures($provider, $entityName, $fields);
-
             } catch (CommandException $e) {
                 $output->writeln($e->getMessage());
                 exit(1);
@@ -99,12 +98,14 @@ class DoctrineDumpCommand extends ContainerAwareCommand
     }
 
     /**
-     * Load Collection of Doctrine entities
+     * Load Collection of Doctrine entities.
      *
      * @param $name
      * @param $entityName
      * @param $fields
+     *
      * @return array
+     *
      * @throws \Exception
      */
     protected function loadCollaction($name, $entityName, $fields)
@@ -120,12 +121,10 @@ class DoctrineDumpCommand extends ContainerAwareCommand
 
         $result = array();
 
-        foreach($collection as $item)
-        {
+        foreach ($collection as $item) {
             $element = array();
 
-            foreach($fields as $fieldName => $attributes)
-            {
+            foreach ($fields as $fieldName => $attributes) {
                 $methodName = 'get'.ucfirst($fieldName);
                 $fieldValue = $item->$methodName();
 
@@ -138,10 +137,10 @@ class DoctrineDumpCommand extends ContainerAwareCommand
                         $targetClassName = $meta->associationMappings[$fieldName]['targetEntity'];
                         $targetEntityProvider = new EntityProvider($targetClassName);
 
-                        $targetMethodName = 'get' . ucfirst($em->getClassMetadata($targetClassName)->identifier[0]);
+                        $targetMethodName = 'get'.ucfirst($em->getClassMetadata($targetClassName)->identifier[0]);
                         $value = array(
                             'type' => 'reference',
-                            'name' => $targetEntityProvider->getName() . '_' . $fieldValue->$targetMethodName(),
+                            'name' => $targetEntityProvider->getName().'_'.$fieldValue->$targetMethodName(),
                         );
                     } else {
                         throw new \Exception('aaa');
@@ -160,13 +159,15 @@ class DoctrineDumpCommand extends ContainerAwareCommand
     }
 
     /**
-     * Render one Entity item
+     * Render one Entity item.
      *
      * @param $em
      * @param $data
      * @param $attributes
      * @param $association
+     *
      * @return array|mixed
+     *
      * @throws \Exception
      */
     protected function loadItem($em, $data, $attributes, $association)
@@ -176,7 +177,7 @@ class DoctrineDumpCommand extends ContainerAwareCommand
                 return array('type' => 'DateTime', 'name' => $data->format('r'));
             }
 
-            if(array_key_exists('targetEntity', $attributes)) {
+            if (array_key_exists('targetEntity', $attributes)) {
                 $targetClass = $em->getClassMetadata($attributes['targetEntity']);
 
 //                var_dump($association);die();
@@ -184,22 +185,23 @@ class DoctrineDumpCommand extends ContainerAwareCommand
 
 //                die($className);
                 $entityProvider = new EntityProvider($className);
-//
+
 //                $meta = $em->getClassMetadata($className);
                 $identifier = $targetClass->getSingleIdentifierFieldName();
                 $identifierMethodName = 'get'.ucfirst($identifier);
 
                 return array(
                     'type' => 'reference',
-                    'name' => $entityProvider->getName() . '_' . $data->$identifierMethodName(),
+                    'name' => $entityProvider->getName().'_'.$data->$identifierMethodName(),
                 );
             }
 
-            throw new \Exception('Unknown data class: ' . get_class($data));
+            throw new \Exception('Unknown data class: '.get_class($data));
         }
 
-        if(!is_array($data))
+        if (!is_array($data)) {
             return str_replace(array("\r\n",   "\r", "\n"), '\n', htmlspecialchars($data, ENT_QUOTES));
+        }
 
         return $data;
     }
@@ -210,8 +212,8 @@ class DoctrineDumpCommand extends ContainerAwareCommand
 
         $output = '';
 
-        foreach(preg_split("/((\r?\n)|(\r\n?))/", $data) as $line) {
-            $output .= self::$indent . $line . PHP_EOL;
+        foreach (preg_split("/((\r?\n)|(\r\n?))/", $data) as $line) {
+            $output .= self::$indent.$line.PHP_EOL;
         }
 
         return $output;
@@ -221,49 +223,46 @@ class DoctrineDumpCommand extends ContainerAwareCommand
     {
         $bundleNamespace = $this->getBundleNamespace($entityName);
 
-        $content = '<?php ' . "\n\n";
-        $content .= 'namespace ' . $bundleNamespace . '\DataFixtures\ORM;' . "\n\n";
-        $content .= 'use TeamLab\Bundle\FixturesBundle\AbstractFixture;' . "\n";
-        $content .= 'use Doctrine\Common\Persistence\ObjectManager;' . "\n\n\n";
+        $content = '<?php '."\n\n";
+        $content .= 'namespace '.$bundleNamespace.'\DataFixtures\ORM;'."\n\n";
+        $content .= 'use TeamLab\Bundle\FixturesBundle\AbstractFixture;'."\n";
+        $content .= 'use Doctrine\Common\Persistence\ObjectManager;'."\n\n\n";
 
-        $content .= 'class Load' . ucfirst($provider->getName()) . 'Data extends AbstractFixture
+        $content .= 'class Load'.ucfirst($provider->getName()).'Data extends AbstractFixture
 {
     /**
      * {@inheritDoc}
      */
     public function load(ObjectManager $manager)
     {
-        $this->loadObjects($manager, \'' . $entityName . '\');
+        $this->loadObjects($manager, \'' .$entityName.'\');
     }
 
     public function getData(ObjectManager $manager)
     {
         return
-' . $this->exportData($this->loadCollaction($provider->getName(), $entityName, $fields)) . '
+' .$this->exportData($this->loadCollaction($provider->getName(), $entityName, $fields)).'
         ;
     }
 
     public function getOrder()
     {
-        return ' . $provider->getSequence() . ';
+        return ' .$provider->getSequence().';
     }
 }
 ';
         // create file
         $fixturesDir = $this->getContainer()->get('kernel')->getRootDir().
-            DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
-            str_replace('\\', DIRECTORY_SEPARATOR, $bundleNamespace) . DIRECTORY_SEPARATOR .
-            'DataFixtures' . DIRECTORY_SEPARATOR . 'ORM';
+            DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.
+            str_replace('\\', DIRECTORY_SEPARATOR, $bundleNamespace).DIRECTORY_SEPARATOR.
+            'DataFixtures'.DIRECTORY_SEPARATOR.'ORM';
 
         if (!is_dir($fixturesDir)) {
             @mkdir($fixturesDir, 0777, true);
         }
 
-        $fixturesFilename = $fixturesDir . DIRECTORY_SEPARATOR . 'Load'.$provider->getClassName().'Data.php';
+        $fixturesFilename = $fixturesDir.DIRECTORY_SEPARATOR.'Load'.$provider->getClassName().'Data.php';
 
         file_put_contents($fixturesFilename, $content);
     }
-
 }
-
-?>

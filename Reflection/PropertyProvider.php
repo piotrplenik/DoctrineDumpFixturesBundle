@@ -28,7 +28,7 @@ class PropertyProvider
 
     public function valid()
     {
-        return ($this->getPropertyDumpAnnotation() !== null);
+        return $this->getPropertyDumpAnnotation() !== null;
     }
 
     public function asArray()
@@ -37,7 +37,7 @@ class PropertyProvider
 
         $annotation = $this->getPropertyManyToOneAnnotation();
 
-        if($annotation) {
+        if ($annotation) {
             $return['targetEntity'] = $annotation->targetEntity;
         }
 
@@ -50,6 +50,7 @@ class PropertyProvider
     protected function getPropertyDumpAnnotation()
     {
         $annotationReader = new AnnotationReader();
+
         return $annotationReader->getPropertyAnnotation($this->reflection,
             'TeamLab\Bundle\FixturesBundle\Mapping\Column');
     }
@@ -60,6 +61,7 @@ class PropertyProvider
     protected function getPropertyManyToOneAnnotation()
     {
         $annotationReader = new AnnotationReader();
+
         return $annotationReader->getPropertyAnnotation($this->reflection,
             'Doctrine\ORM\Mapping\ManyToOne');
     }

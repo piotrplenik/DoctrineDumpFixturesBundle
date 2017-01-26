@@ -31,20 +31,20 @@ class EntityProvider
 
     public function valid()
     {
-        return ($this->getClassDumpAnnotation() !== null);
+        return $this->getClassDumpAnnotation() !== null;
     }
 
     public function getName()
     {
         $annotation = $this->getClassDumpAnnotation();
 
-        if(isset($annotation->name)) {
+        if (isset($annotation->name)) {
             return $annotation->name;
         }
 
         $annotation = $this->getClassORMAnnotation();
 
-        if(isset($annotation->name)) {
+        if (isset($annotation->name)) {
             return $this->getClassORMAnnotation()->name;
         }
 
@@ -60,7 +60,7 @@ class EntityProvider
     {
         $annotation = $this->getClassDumpAnnotation();
 
-        if(isset($annotation->sequence)) {
+        if (isset($annotation->sequence)) {
             return $annotation->sequence;
         }
 
@@ -69,15 +69,15 @@ class EntityProvider
 
     public function getDumpFields()
     {
-        if(!$this->valid()) {
+        if (!$this->valid()) {
             return false;
         }
 
         $fields = array();
 
-        foreach($this->reflection->getProperties() as $property) {
+        foreach ($this->reflection->getProperties() as $property) {
             $propertyClass = new PropertyProvider($this->className, $property->getName());
-            if(!$propertyClass->valid()) {
+            if (!$propertyClass->valid()) {
                 continue;
             }
 
@@ -93,6 +93,7 @@ class EntityProvider
     protected function getClassDumpAnnotation()
     {
         $annotationReader = new AnnotationReader();
+
         return $annotationReader->getClassAnnotation($this->reflection,
             'TeamLab\Bundle\FixturesBundle\Mapping\Entity');
     }
@@ -103,8 +104,8 @@ class EntityProvider
     protected function getClassORMAnnotation()
     {
         $annotationReader = new AnnotationReader();
+
         return $annotationReader->getClassAnnotation($this->reflection,
             'Doctrine\ORM\Mapping\Table');
     }
-
 }

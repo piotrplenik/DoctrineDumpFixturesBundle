@@ -15,8 +15,7 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 
-abstract class AbstractFixture extends \Doctrine\Common\DataFixtures\AbstractFixture
-    implements FixtureInterface, OrderedFixtureInterface
+abstract class AbstractFixture extends \Doctrine\Common\DataFixtures\AbstractFixture implements FixtureInterface, OrderedFixtureInterface
 {
     protected function loadObjects(ObjectManager $manager, $className)
     {
@@ -24,25 +23,23 @@ abstract class AbstractFixture extends \Doctrine\Common\DataFixtures\AbstractFix
             $entity = new $className();
 
             foreach ($data as $field => $value) {
-                $setterMethod = 'set' . str_replace('_', '', ucwords($field));
+                $setterMethod = 'set'.str_replace('_', '', ucwords($field));
 
-                if(!is_array($value))
-                {
+                if (!is_array($value)) {
                     $entity->$setterMethod($value);
                     continue;
                 }
 
-                if(!array_key_exists('type', $value))
+                if (!array_key_exists('type', $value)) {
                     throw new Exception('Something goes wrong. ');
+                }
 
-                if($value['type'] === 'reference')
-                {
+                if ($value['type'] === 'reference') {
                     $entity->$setterMethod($manager->merge($this->getReference($value['name'])));
                     continue;
                 }
 
-                if($value['type'] === 'DateTime')
-                {
+                if ($value['type'] === 'DateTime') {
                     $entity->$setterMethod(new \DateTime($value['name']));
                     continue;
                 }

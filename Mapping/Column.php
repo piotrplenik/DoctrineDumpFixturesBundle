@@ -10,6 +10,7 @@
  */
 
 namespace TeamLab\Bundle\FixturesBundle\Mapping;
+
 /**
  * @Annotation
  * @Target("PROPERTY")
@@ -18,6 +19,6 @@ class Column implements Annotation
 {
     /** @var string */
     public $name;
-    /** @var integer */
+    /** @var int */
     public $sequence;
 }
