@@ -1,7 +1,7 @@
 DoctrineDumpFixturesBundle
 ==========================
 
-Bundle for Symfony 2, with you can dump database data into fixtures.
+Bundle for Symfony 2/3, with you can dump database data into fixtures.
 
 Dump Fixtures are used to dump database data into fixtures file.
 
