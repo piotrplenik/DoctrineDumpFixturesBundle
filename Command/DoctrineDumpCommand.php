@@ -61,14 +61,17 @@ class DoctrineDumpCommand extends ContainerAwareCommand
             $helper = $this->getHelper('question');
 
             $question = new ConfirmationQuestion(
-                'Careful, existing data fixtures will be override. Do you want to continue (y/N) ?',
+                'Are you sure, that you want generate dump data (all currently generated classes will be overridden). Do you want to continue (y/N)?',
                 false
             );
 
             if (!$helper->ask($input, $output, $question)) {
-                return;
+                $output->writeln('Aborted.');
+                exit(1);
             }
         }
+
+        $nbOfEntities = 0;
 
         foreach ($entities as $entityName) {
             $provider = new EntityProvider($entityName);
@@ -92,6 +95,13 @@ class DoctrineDumpCommand extends ContainerAwareCommand
                 $output->writeln($e->getMessage());
                 exit(1);
             }
+            $nbOfEntities++;
+        }
+
+        if($nbOfEntities === 0) {
+            $output->writeln('Not found any entities to export. Please configure Entities that should be exported.');
+        } else {
+            $output->writeln('Done. Exported data for '.$nbOfEntities.' entities.');
         }
 
         exit(0);

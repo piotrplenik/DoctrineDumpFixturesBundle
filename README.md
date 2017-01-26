@@ -1,7 +1,7 @@
 DoctrineDumpFixturesBundle
 ==========================
 
-Bundle for Symfony 2/3, with you can dump database data into fixtures.
+Bundle for Symfony 3, with you can dump database data into fixtures.
 
 Dump Fixtures are used to dump database data into fixtures file.
 
@@ -12,32 +12,13 @@ Setup and Configuration
  The bundle uses external `Doctrine Data Fixtures`_ library.
 
  Follow these steps to install the bundle and the library in the Symfony
- Standard edition. Add the following to your ``composer.json`` file:
-
-```json
- {
-     "require": {
-         "jupeter/doctrine-dump-fixtures-bundle": "dev-master"
-     }
- }
-```
-
- Update the vendor libraries:
+ Standard edition. Run command in your project diretory:
 
 ```bash
-$ php composer.phar update
+$ composer require jupeter/doctrine-dump-fixtures-bundle
 ```
 
- If everything worked, the ``DoctrineDumpFixturesBundle`` can now be found
- at ``vendor/jupeter/doctrine-dump-fixtures-bundle``.
-
-```
-``DoctrineDumpFixturesBundle`` installs
-`Doctrine Fixtures Bundle` and `Doctrine Data Fixtures`_ library. The library can be found
-at ``vendor/doctrine``.
-```
-
- Finally, register the Bundle ``DoctrineDumpFixturesBundle`` in ``app/AppKernel.php``.
+Finally, register the Bundle ``DoctrineDumpFixturesBundle`` in ``app/AppKernel.php``.
 
 ```php
 // ...
@@ -52,7 +33,42 @@ public function registerBundles()
 }
 ```
 
+Configuration
+-------------
+
+To dump entity data, you need setup annotation for entity:
+
+```php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use TeamLab\Bundle\FixturesBundle\Mapping as Dump;  # use Annotation
+
+/**
+ * @ORM\Entity
+ * @Dump\Entity # configure with entities should be dumped
+  */
+class Offers 
+{
+     // ...
+     
+     /**
+      * @ORM\Column(type="string")
+      * @Dump\Column # configure with columns should be dumped
+      */
+     private function $name;
+     
+     // ...
+}
+
+```
+
 Dump existing data into fixtures
 --------------------------------
 
-{todo}
+To dump all data from database to Fixtures, run command:
+
+```bash
+$ ./bin/console doctrine:fixtures:dump 
+```
